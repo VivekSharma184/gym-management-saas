@@ -2,6 +2,33 @@
   publish = "."
   command = "echo 'Multi-tenant gym management app ready'"
 
+# Authentication routing
+[[redirects]]
+  from = "/auth"
+  to = "/auth.html"
+  status = 200
+
+[[redirects]]
+  from = "/login"
+  to = "/auth.html"
+  status = 200
+
+[[redirects]]
+  from = "/signup"
+  to = "/auth.html"
+  status = 200
+
+# Admin panel routing
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/admin.html"
+  status = 200
+
 # Multi-tenant routing - each gym gets its own path
 [[redirects]]
   from = "/gym1/*"

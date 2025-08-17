@@ -22,6 +22,16 @@ const server = http.createServer((req, res) => {
     
     let filePath = req.url;
     
+    // Handle authentication routing
+    if (filePath === '/auth' || filePath === '/login' || filePath === '/signup') {
+        filePath = '/auth.html';
+    }
+    
+    // Handle admin panel routing
+    if (filePath === '/admin' || filePath.startsWith('/admin/')) {
+        filePath = '/admin.html';
+    }
+    
     // Handle multi-tenant routing
     if (filePath.startsWith('/gym1') || 
         filePath.startsWith('/gym2') || 

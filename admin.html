@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymFlow - Super Admin Panel</title>
+    <link rel="stylesheet" href="admin-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <nav class="admin-sidebar">
+            <div class="admin-logo">
+                <h2><i class="fas fa-crown"></i> GymFlow Admin</h2>
+            </div>
+            <ul class="admin-nav">
+                <li><a href="#dashboard" class="nav-link active" data-section="dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a></li>
+                <li><a href="#gyms" class="nav-link" data-section="gyms">
+                    <i class="fas fa-dumbbell"></i> Gym Management
+                </a></li>
+                <li><a href="#subscriptions" class="nav-link" data-section="subscriptions">
+                    <i class="fas fa-credit-card"></i> Subscriptions
+                </a></li>
+                <li><a href="#analytics" class="nav-link" data-section="analytics">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </a></li>
+                <li><a href="#billing" class="nav-link" data-section="billing">
+                    <i class="fas fa-rupee-sign"></i> Billing
+                </a></li>
+                <li><a href="#support" class="nav-link" data-section="support">
+                    <i class="fas fa-headset"></i> Support
+                </a></li>
+                <li><a href="#settings" class="nav-link" data-section="settings">
+                    <i class="fas fa-cog"></i> Settings
+                </a></li>
+            </ul>
+            <div class="admin-user">
+                <div class="user-info">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Super Admin</span>
+                </div>
+                <button class="logout-btn"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="admin-main">
+            <header class="admin-header">
+                <div class="header-left">
+                    <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+                    <h1 id="page-title">Dashboard</h1>
+                </div>
+                <div class="header-right">
+                    <div class="notifications">
+                        <button class="notification-btn">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge">3</span>
+                        </button>
+                    </div>
+                    <div class="admin-profile">
+                        <img src="https://via.placeholder.com/40" alt="Admin" class="profile-img">
+                    </div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <!-- Dashboard Section -->
+                <section id="dashboard-section" class="content-section active">
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-dumbbell"></i>
+                            </div>
+                            <div class="metric-info">
+                                <h3 id="total-gyms">0</h3>
+                                <p>Total Gyms</p>
+                                <span class="metric-change positive">+5 this month</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-rupee-sign"></i>
+                            </div>
+                            <div class="metric-info">
+                                <h3 id="monthly-revenue">₹0</h3>
+                                <p>Monthly Revenue</p>
+                                <span class="metric-change positive">+12%</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="metric-info">
+                                <h3 id="active-subscriptions">0</h3>
+                                <p>Active Subscriptions</p>
+                                <span class="metric-change positive">+3 this week</span>
+                            </div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="metric-info">
+                                <h3 id="conversion-rate">67%</h3>
+                                <p>Trial Conversion</p>
+                                <span class="metric-change positive">+5%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-charts">
+                        <div class="chart-container">
+                            <h3>Revenue Trend</h3>
+                            <canvas id="revenue-chart"></canvas>
+                        </div>
+                        <div class="chart-container">
+                            <h3>Gym Growth</h3>
+                            <canvas id="growth-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="recent-activity">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-list" id="activity-list">
+                            <!-- Activity items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Gym Management Section -->
+                <section id="gyms-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Gym Management</h2>
+                        <button class="btn btn-primary" id="add-gym-btn">
+                            <i class="fas fa-plus"></i> Add New Gym
+                        </button>
+                    </div>
+
+                    <div class="filters">
+                        <select id="status-filter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="trial">Trial</option>
+                            <option value="suspended">Suspended</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                        <select id="plan-filter">
+                            <option value="">All Plans</option>
+                            <option value="free">Free Trial</option>
+                            <option value="basic">Basic</option>
+                            <option value="pro">Pro</option>
+                            <option value="enterprise">Enterprise</option>
+                        </select>
+                        <input type="text" id="search-gyms" placeholder="Search gyms...">
+                    </div>
+
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Gym Name</th>
+                                    <th>Owner</th>
+                                    <th>Plan</th>
+                                    <th>Status</th>
+                                    <th>Members</th>
+                                    <th>Revenue</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="gyms-table-body">
+                                <!-- Gym data will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- Subscriptions Section -->
+                <section id="subscriptions-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Subscription Plans</h2>
+                        <button class="btn btn-primary" id="create-plan-btn">
+                            <i class="fas fa-plus"></i> Create Plan
+                        </button>
+                    </div>
+
+                    <div class="plans-grid" id="plans-grid">
+                        <!-- Subscription plans will be populated by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Analytics Section -->
+                <section id="analytics-section" class="content-section">
+                    <div class="section-header">
+                        <h2>Analytics & Reports</h2>
+                        <div class="date-range">
+                            <input type="date" id="start-date">
+                            <input type="date" id="end-date">
+                            <button class="btn btn-secondary">Apply</button>
+                        </div>
+                    </div>
+
+                    <div class="analytics-grid">
+                        <div class="analytics-card">
+                            <h3>Revenue Analytics</h3>
+                            <canvas id="revenue-analytics-chart"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>User Growth</h3>
+                            <canvas id="user-growth-chart"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>Churn Analysis</h3>
+                            <canvas id="churn-chart"></canvas>
+                        </div>
+                        <div class="analytics-card">
+                            <h3>Plan Distribution</h3>
+                            <canvas id="plan-distribution-chart"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Other sections (billing, support, settings) will be similar -->
+                <section id="billing-section" class="content-section">
+                    <h2>Billing Management</h2>
+                    <p>Billing features coming soon...</p>
+                </section>
+
+                <section id="support-section" class="content-section">
+                    <h2>Customer Support</h2>
+                    <p>Support features coming soon...</p>
+                </section>
+
+                <section id="settings-section" class="content-section">
+                    <h2>Platform Settings</h2>
+                    <p>Settings features coming soon...</p>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="gym-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add New Gym</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <form id="gym-form">
+                <div class="form-group">
+                    <label for="gym-name">Gym Name</label>
+                    <input type="text" id="gym-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="owner-name">Owner Name</label>
+                    <input type="text" id="owner-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="owner-email">Owner Email</label>
+                    <input type="email" id="owner-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="gym-plan">Subscription Plan</label>
+                    <select id="gym-plan" required>
+                        <option value="free">Free Trial</option>
+                        <option value="basic">Basic</option>
+                        <option value="pro">Pro</option>
+                        <option value="enterprise">Enterprise</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="gym-status">Status</label>
+                    <select id="gym-status" required>
+                        <option value="active">Active</option>
+                        <option value="trial">Trial</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Gym</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="security-monitor.js"></script>
+    <script src="admin-script.js"></script>
+</body>
+</html>

@@ -1,8 +1,53 @@
 // Gym Management App JavaScript
 
+// Authentication check for gym owners
+function checkGymAuthentication() {
+    const session = localStorage.getItem('gymflowSession') || sessionStorage.getItem('gymflowSession');
+    
+    if (!session) {
+        window.location.href = '/auth';
+        return null;
+    }
+    
+    try {
+        const sessionData = JSON.parse(session);
+        
+        // Check if session is expired
+        if (sessionData.expiresAt <= Date.now()) {
+            localStorage.removeItem('gymflowSession');
+            sessionStorage.removeItem('gymflowSession');
+            window.location.href = '/auth';
+            return null;
+        }
+        
+        // Check if user has gym-owner role
+        if (sessionData.role !== 'gym-owner') {
+            window.location.href = '/auth';
+            return null;
+        }
+        
+        // Check if user's gym matches current tenant
+        const currentTenant = window.location.pathname.match(/^\/([^\/]+)/)?.[1] || 'demo';
+        if (sessionData.gymId !== currentTenant) {
+            window.location.href = `/${sessionData.gymId}`;
+            return null;
+        }
+        
+        return sessionData;
+    } catch (error) {
+        console.error('Invalid session data');
+        window.location.href = '/auth';
+        return null;
+    }
+}
+
 // Tenant Configuration
 class TenantConfig {
     constructor() {
+        // Check authentication first
+        this.currentUser = checkGymAuthentication();
+        if (!this.currentUser) return;
+        
         this.tenantId = this.getTenantFromURL();
         this.apiBase = 'https://gymflow.azurewebsites.net/api'; // Your Azure Function URL
         this.isOnline = navigator.onLine;
@@ -74,6 +119,7 @@ class GymApp {
         this.setupModals();
         this.setupForms();
         this.setupSearch();
+        this.setupSecurity();
         this.loadDashboard();
         this.loadMembers();
         this.loadPlans();
@@ -85,6 +131,310 @@ class GymApp {
         
         // Show tenant info
         this.showTenantInfo();
+    }
+
+    // Security Setup
+    setupSecurity() {
+        this.displayUserInfo();
+        this.setupLogout();
+        this.startSessionTimer();
+        this.setupInactivityDetection();
+        this.setupSecurityHeaders();
+    }
+
+    // Display user information in header
+    displayUserInfo() {
+        if (this.tenant.currentUser) {
+            const userName = document.getElementById('userName');
+            const gymName = document.getElementById('gymName');
+            
+            if (userName) {
+                userName.textContent = `${this.tenant.currentUser.firstName} ${this.tenant.currentUser.lastName}`;
+            }
+            if (gymName) {
+                gymName.textContent = this.tenant.currentUser.gymName || 'Demo Gym';
+            }
+        }
+    }
+
+    // Setup logout functionality
+    setupLogout() {
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => {
+                this.confirmLogout();
+            });
+        }
+    }
+
+    // Confirm logout with user
+    confirmLogout() {
+        if (confirm('Are you sure you want to logout? Any unsaved changes will be lost.')) {
+            this.performLogout();
+        }
+    }
+
+    // Perform logout
+    performLogout() {
+        // Clear session data
+        localStorage.removeItem('gymflowSession');
+        sessionStorage.removeItem('gymflowSession');
+        
+        // Clear any sensitive data from memory
+        this.members = [];
+        this.plans = [];
+        this.trainers = [];
+        
+        // Show logout message
+        this.showNotification('Logged out successfully', 'info');
+        
+        // Redirect to auth page after short delay
+        setTimeout(() => {
+            window.location.href = '/auth';
+        }, 1000);
+    }
+
+    // Start session timer
+    startSessionTimer() {
+        this.updateSessionTimer();
+        
+        // Update timer every minute
+        this.sessionTimerInterval = setInterval(() => {
+            this.updateSessionTimer();
+        }, 60000);
+    }
+
+    // Update session timer display
+    updateSessionTimer() {
+        const session = localStorage.getItem('gymflowSession') || sessionStorage.getItem('gymflowSession');
+        
+        if (!session) {
+            this.performLogout();
+            return;
+        }
+
+        try {
+            const sessionData = JSON.parse(session);
+            const now = Date.now();
+            const timeLeft = sessionData.expiresAt - now;
+            
+            if (timeLeft <= 0) {
+                this.handleSessionExpiry();
+                return;
+            }
+
+            const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            const timeRemaining = document.getElementById('timeRemaining');
+            const sessionTimer = document.getElementById('sessionTimer');
+            
+            if (timeRemaining) {
+                timeRemaining.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            // Change color based on time remaining
+            if (sessionTimer) {
+                sessionTimer.classList.remove('warning', 'danger');
+                
+                if (timeLeft < 5 * 60 * 1000) { // Less than 5 minutes
+                    sessionTimer.classList.add('danger');
+                } else if (timeLeft < 30 * 60 * 1000) { // Less than 30 minutes
+                    sessionTimer.classList.add('warning');
+                }
+            }
+
+        } catch (error) {
+            console.error('Invalid session data');
+            this.performLogout();
+        }
+    }
+
+    // Handle session expiry
+    handleSessionExpiry() {
+        clearInterval(this.sessionTimerInterval);
+        alert('Your session has expired. Please login again.');
+        this.performLogout();
+    }
+
+    // Setup inactivity detection
+    setupInactivityDetection() {
+        let inactivityTimer;
+        const inactivityTimeout = 30 * 60 * 1000; // 30 minutes
+        
+        const resetInactivityTimer = () => {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(() => {
+                if (confirm('You have been inactive for 30 minutes. Do you want to extend your session?')) {
+                    this.extendSession();
+                } else {
+                    this.performLogout();
+                }
+            }, inactivityTimeout);
+        };
+
+        // Track user activity
+        const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+        
+        activityEvents.forEach(event => {
+            document.addEventListener(event, resetInactivityTimer, true);
+        });
+
+        // Start the timer
+        resetInactivityTimer();
+    }
+
+    // Extend user session
+    extendSession() {
+        const session = localStorage.getItem('gymflowSession') || sessionStorage.getItem('gymflowSession');
+        
+        if (session) {
+            try {
+                const sessionData = JSON.parse(session);
+                sessionData.expiresAt = Date.now() + (24 * 60 * 60 * 1000); // Extend by 24 hours
+                
+                const storageType = localStorage.getItem('gymflowSession') ? localStorage : sessionStorage;
+                storageType.setItem('gymflowSession', JSON.stringify(sessionData));
+                
+                this.showNotification('Session extended successfully', 'success');
+            } catch (error) {
+                console.error('Failed to extend session');
+                this.performLogout();
+            }
+        }
+    }
+
+    // Setup security headers and policies
+    setupSecurityHeaders() {
+        // Prevent right-click context menu in production
+        if (window.location.hostname !== 'localhost') {
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+        }
+
+        // Prevent text selection of sensitive elements
+        const sensitiveElements = document.querySelectorAll('.user-info, .action-btn');
+        sensitiveElements.forEach(element => {
+            element.style.userSelect = 'none';
+            element.style.webkitUserSelect = 'none';
+        });
+
+        // Add security event listeners
+        this.setupSecurityEventListeners();
+    }
+
+    // Setup security event listeners
+    setupSecurityEventListeners() {
+        // Detect tab visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                console.log('Tab hidden - pausing sensitive operations');
+            } else {
+                console.log('Tab visible - resuming operations');
+                this.validateSession();
+            }
+        });
+
+        // Detect browser back/forward navigation
+        window.addEventListener('popstate', () => {
+            this.validateSession();
+        });
+
+        // Detect page unload
+        window.addEventListener('beforeunload', (e) => {
+            // Save any pending changes
+            this.saveAllData();
+        });
+    }
+
+    // Validate current session
+    validateSession() {
+        const session = localStorage.getItem('gymflowSession') || sessionStorage.getItem('gymflowSession');
+        
+        if (!session) {
+            this.performLogout();
+            return false;
+        }
+
+        try {
+            const sessionData = JSON.parse(session);
+            
+            if (sessionData.expiresAt <= Date.now()) {
+                this.handleSessionExpiry();
+                return false;
+            }
+
+            // Verify user still has access to this gym
+            if (sessionData.gymId !== this.tenant.tenantId) {
+                alert('Access denied. You do not have permission to access this gym.');
+                window.location.href = `/${sessionData.gymId}`;
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Session validation failed');
+            this.performLogout();
+            return false;
+        }
+    }
+
+    // Save all data before logout/unload
+    saveAllData() {
+        try {
+            this.saveMembers();
+            this.savePlans();
+            this.saveTrainers();
+        } catch (error) {
+            console.error('Failed to save data:', error);
+        }
+    }
+
+    // Show notification to user
+    showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `security-notification ${type}`;
+        notification.innerHTML = `
+            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        
+        // Add styles
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            padding: 15px 20px;
+            background: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Show notification
+        setTimeout(() => {
+            notification.style.transform = 'translateX(0)';
+        }, 100);
+        
+        // Remove notification
+        setTimeout(() => {
+            notification.style.transform = 'translateX(400px)';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 300);
+        }, 4000);
     }
     
     async loadTenantData() {

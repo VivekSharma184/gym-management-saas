@@ -26,6 +26,28 @@
                 <i class="fas fa-dumbbell"></i>
                 <span>GymFlow</span>
             </div>
+            
+            <!-- User Info Section -->
+            <div class="nav-user-info">
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user-circle"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="userName">Loading...</span>
+                        <span class="gym-name" id="gymName">Loading...</span>
+                    </div>
+                </div>
+                
+                <!-- Session Timer -->
+                <div class="session-info">
+                    <div class="session-timer" id="sessionTimer">
+                        <i class="fas fa-clock"></i>
+                        <span id="timeRemaining">24:00:00</span>
+                    </div>
+                </div>
+            </div>
+            
             <div class="nav-menu" id="navMenu">
                 <a href="#dashboard" class="nav-link active" data-section="dashboard">
                     <i class="fas fa-chart-dashboard"></i>
@@ -47,6 +69,14 @@
                     <i class="fas fa-chart-bar"></i>
                     <span>Reports</span>
                 </a>
+            </div>
+            
+            <!-- Logout Button -->
+            <div class="nav-footer">
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
             </div>
         </nav>
 
@@ -298,6 +328,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="security-monitor.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

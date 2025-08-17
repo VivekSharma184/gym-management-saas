@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GymFlow - Authentication</title>
+    <link rel="stylesheet" href="auth-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-background">
+            <div class="auth-overlay"></div>
+        </div>
+        
+        <div class="auth-content">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <div class="logo">
+                        <i class="fas fa-dumbbell"></i>
+                        <h1>GymFlow</h1>
+                    </div>
+                    <p class="tagline">Manage your gym business with ease</p>
+                </div>
+
+                <!-- Login Form -->
+                <form id="login-form" class="auth-form active">
+                    <h2>Welcome Back</h2>
+                    <p class="form-subtitle">Sign in to your account</p>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="login-email" placeholder="Email address" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="login-password" placeholder="Password" required>
+                            <button type="button" class="toggle-password" data-target="login-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="remember-me">
+                            <span class="checkmark"></span>
+                            Remember me
+                        </label>
+                        <a href="#" class="forgot-password">Forgot password?</a>
+                    </div>
+
+                    <button type="submit" class="auth-btn primary">
+                        <span>Sign In</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <div class="auth-divider">
+                        <span>or</span>
+                    </div>
+
+                    <div class="demo-accounts">
+                        <h4>Quick Demo Access</h4>
+                        <div class="demo-buttons">
+                            <button type="button" class="demo-btn" data-role="admin">
+                                <i class="fas fa-crown"></i>
+                                Super Admin Demo
+                            </button>
+                            <button type="button" class="demo-btn" data-role="gym-owner">
+                                <i class="fas fa-dumbbell"></i>
+                                Gym Owner Demo
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="auth-switch">
+                        Don't have an account? 
+                        <a href="#" id="show-signup">Sign up here</a>
+                    </p>
+                </form>
+
+                <!-- Signup Form -->
+                <form id="signup-form" class="auth-form">
+                    <h2>Create Account</h2>
+                    <p class="form-subtitle">Start your gym management journey</p>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="signup-firstname" placeholder="First Name" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <i class="fas fa-user"></i>
+                                <input type="text" id="signup-lastname" placeholder="Last Name" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="signup-email" placeholder="Email address" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-dumbbell"></i>
+                            <input type="text" id="gym-name" placeholder="Gym Name" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-phone"></i>
+                            <input type="tel" id="phone-number" placeholder="Phone Number" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="signup-password" placeholder="Password" required>
+                            <button type="button" class="toggle-password" data-target="signup-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-bar">
+                                <div class="strength-fill"></div>
+                            </div>
+                            <span class="strength-text">Password strength</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" id="confirm-password" placeholder="Confirm Password" required>
+                            <button type="button" class="toggle-password" data-target="confirm-password">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="agree-terms" required>
+                            <span class="checkmark"></span>
+                            I agree to the <a href="#" class="terms-link">Terms of Service</a> and <a href="#" class="privacy-link">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="checkbox-container">
+                            <input type="checkbox" id="marketing-emails">
+                            <span class="checkmark"></span>
+                            Send me marketing emails and product updates
+                        </label>
+                    </div>
+
+                    <button type="submit" class="auth-btn primary">
+                        <span>Create Account</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+
+                    <p class="auth-switch">
+                        Already have an account? 
+                        <a href="#" id="show-login">Sign in here</a>
+                    </p>
+                </form>
+
+                <!-- Forgot Password Form -->
+                <form id="forgot-form" class="auth-form">
+                    <h2>Reset Password</h2>
+                    <p class="form-subtitle">Enter your email to receive reset instructions</p>
+                    
+                    <div class="form-group">
+                        <div class="input-group">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="forgot-email" placeholder="Email address" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="auth-btn primary">
+                        <span>Send Reset Link</span>
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+
+                    <p class="auth-switch">
+                        Remember your password? 
+                        <a href="#" id="back-to-login">Sign in here</a>
+                    </p>
+                </form>
+            </div>
+
+            <!-- Features Section -->
+            <div class="features-section">
+                <h3>Why Choose GymFlow?</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <i class="fas fa-users"></i>
+                        <h4>Member Management</h4>
+                        <p>Comprehensive member profiles, subscriptions, and tracking</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>Analytics Dashboard</h4>
+                        <p>Real-time insights into your gym's performance</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-mobile-alt"></i>
+                        <h4>Mobile Responsive</h4>
+                        <p>Access your gym management from any device</p>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <h4>Secure & Reliable</h4>
+                        <p>Enterprise-grade security for your data</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner">
+            <i class="fas fa-dumbbell fa-spin"></i>
+            <p>Authenticating...</p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content success">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h3>Welcome to GymFlow!</h3>
+            <p id="success-message">Your account has been created successfully.</p>
+            <button class="auth-btn primary" id="continue-btn">Continue</button>
+        </div>
+    </div>
+
+    <script src="auth-script.js"></script>
+</body>
+</html>
