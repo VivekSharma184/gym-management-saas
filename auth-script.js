@@ -1,6 +1,9 @@
 // Authentication System JavaScript
 class AuthSystem {
     constructor() {
+        this.apiBaseUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3001/api' 
+            : 'https://gymflow.azurewebsites.net/api';
         this.users = JSON.parse(localStorage.getItem('authUsers')) || this.getDefaultUsers();
         this.currentUser = null;
         this.sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours
@@ -121,6 +124,30 @@ class AuthSystem {
         }
     }
 
+    // API helper methods
+    async apiCall(endpoint, options = {}) {
+        try {
+            const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                ...options
+            });
+
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.error || `HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            return data;
+        } catch (error) {
+            console.error('API call failed:', error);
+            throw error;
+        }
+    }
+
     // Form validation setup
     setupFormValidation() {
         const loginForm = document.getElementById('login-form');
@@ -207,30 +234,39 @@ class AuthSystem {
         this.showLoading(true);
 
         try {
-            // Simulate API call delay
-            await this.delay(1500);
+            // Call real API backend
+            const response = await this.apiCall('/auth/login', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email: email,
+                    password: password,
+                    rememberMe: rememberMe
+                })
+            });
 
-            const user = this.users.find(u => u.email === email && u.password === password);
-            
-            if (!user) {
+            if (!response.success) {
                 this.showLoading(false);
-                this.showError('login-email', 'Invalid email or password');
+                this.showError('login-email', response.error || 'Login failed');
                 this.shakeForm();
                 return;
             }
 
-            if (!user.isActive) {
-                this.showLoading(false);
-                this.showError('login-email', 'Your account has been suspended');
-                return;
+            const { user, session, token } = response.data;
+
+            // Store session data with token and user info
+            const sessionData = {
+                ...session,
+                user: user,
+                token: token,
+                expiresAt: Date.now() + this.sessionTimeout
+            };
+
+            // Save to appropriate storage based on rememberMe
+            if (rememberMe) {
+                localStorage.setItem('gymflowSession', JSON.stringify(sessionData));
+            } else {
+                sessionStorage.setItem('gymflowSession', JSON.stringify(sessionData));
             }
-
-            // Update last login
-            user.lastLogin = new Date().toISOString();
-            this.saveUsers();
-
-            // Create session
-            this.createSession(user, rememberMe);
             
             this.showLoading(false);
             this.showSuccess('Welcome back!', () => {
@@ -265,11 +301,6 @@ class AuthSystem {
             return;
         }
 
-        if (this.users.find(u => u.email === email)) {
-            this.showError('signup-email', 'An account with this email already exists');
-            return;
-        }
-
         if (!gymName) {
             this.showError('gym-name', 'Gym name is required');
             return;
@@ -298,35 +329,43 @@ class AuthSystem {
         this.showLoading(true);
 
         try {
-            // Simulate API call delay
-            await this.delay(2000);
+            // Call real API backend
+            const response = await this.apiCall('/auth/signup', {
+                method: 'POST',
+                body: JSON.stringify({
+                    firstName,
+                    lastName,
+                    email,
+                    password,
+                    gymName,
+                    phone,
+                    role: 'gym-owner'
+                })
+            });
 
-            // Create new user
-            const newUser = {
-                id: 'gym' + Date.now(),
-                email,
-                password, // In production, this would be hashed
-                firstName,
-                lastName,
-                role: 'gym-owner',
-                gymId: 'gym' + Date.now(),
-                gymName,
-                phone,
-                createdAt: new Date().toISOString(),
-                lastLogin: null,
-                isActive: true,
-                permissions: ['gym-management']
+            if (!response.success) {
+                this.showLoading(false);
+                this.showError('signup-email', response.error || 'Registration failed');
+                this.shakeForm();
+                return;
+            }
+
+            const { user, session, token } = response.data;
+
+            // Store session data with token and user info
+            const sessionData = {
+                ...session,
+                user: user,
+                token: token,
+                expiresAt: Date.now() + this.sessionTimeout
             };
 
-            this.users.push(newUser);
-            this.saveUsers();
-
-            // Create session
-            this.createSession(newUser, false);
+            // Save to session storage (don't remember signup sessions by default)
+            sessionStorage.setItem('gymflowSession', JSON.stringify(sessionData));
             
             this.showLoading(false);
             this.showSuccess(`Welcome to GymFlow, ${firstName}! Your account has been created successfully.`, () => {
-                this.redirectUser(newUser);
+                this.redirectUser(user);
             });
 
         } catch (error) {
@@ -444,10 +483,12 @@ class AuthSystem {
 
     // Redirect user based on role
     redirectUser(user) {
-        if (user.role === 'admin') {
+        if (user.role === 'super_admin') {
             window.location.href = '/admin';
         } else {
-            window.location.href = `/${user.gymId}`;
+            // Use tenantId from user object, fallback to demo
+            const tenantId = user.tenantId || user.gymId || 'demo';
+            window.location.href = `/${tenantId}`;
         }
     }
 

@@ -3,7 +3,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // MIME types for different file extensions
 const mimeTypes = {
@@ -36,7 +36,9 @@ const server = http.createServer((req, res) => {
     if (filePath.startsWith('/gym1') || 
         filePath.startsWith('/gym2') || 
         filePath.startsWith('/gym3') || 
-        filePath.startsWith('/demo')) {
+        filePath.startsWith('/demo') ||
+        filePath.startsWith('/fitnesshub') ||
+        filePath.startsWith('/powerhouse')) {
         filePath = '/index.html';
     }
     
@@ -49,7 +51,7 @@ const server = http.createServer((req, res) => {
     }
     
     // If it's a tenant path, serve index.html
-    if (filePath === '/demo' || filePath.match(/^\/gym\d+$/)) {
+    if (filePath === '/demo' || filePath === '/fitnesshub' || filePath === '/powerhouse' || filePath.match(/^\/gym\d+$/)) {
         filePath = '/index.html';
     }
     
@@ -101,10 +103,12 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
     console.log(`🚀 GymFlow local server running at http://localhost:${PORT}`);
     console.log(`📱 Test URLs:`);
-    console.log(`   Demo Gym: http://localhost:${PORT}/demo`);
-    console.log(`   Gym 1:    http://localhost:${PORT}/gym1`);
-    console.log(`   Gym 2:    http://localhost:${PORT}/gym2`);
-    console.log(`   Gym 3:    http://localhost:${PORT}/gym3`);
+    console.log(`   Demo Gym:     http://localhost:${PORT}/demo`);
+    console.log(`   Fitness Hub:  http://localhost:${PORT}/fitnesshub`);
+    console.log(`   PowerHouse:   http://localhost:${PORT}/powerhouse`);
+    console.log(`   Gym 1:        http://localhost:${PORT}/gym1`);
+    console.log(`   Gym 2:        http://localhost:${PORT}/gym2`);
+    console.log(`   Gym 3:        http://localhost:${PORT}/gym3`);
     console.log(`\n💡 Press Ctrl+C to stop the server`);
 });
 

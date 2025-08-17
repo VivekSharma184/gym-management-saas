@@ -44,12 +44,19 @@ function checkGymAuthentication() {
 // Tenant Configuration
 class TenantConfig {
     constructor() {
-        // Check authentication first
-        this.currentUser = checkGymAuthentication();
-        if (!this.currentUser) return;
-        
         this.tenantId = this.getTenantFromURL();
-        this.apiBase = 'https://gymflow.azurewebsites.net/api'; // Your Azure Function URL
+        this.apiBaseUrl = window.location.hostname === 'localhost' 
+            ? 'http://localhost:3001/api' 
+            : 'https://gymflow.azurewebsites.net/api';
+        this.currentUser = this.getCurrentUser();
+        
+        // Only redirect to auth if we're not already on auth page and no user session
+        if (!this.currentUser && !window.location.pathname.includes('/auth')) {
+            console.log('No user session found, redirecting to auth page');
+            window.location.href = '/auth';
+            return;
+        }
+        
         this.isOnline = navigator.onLine;
         
         // Update online status
@@ -70,22 +77,65 @@ class TenantConfig {
         const tenantMatch = path.match(/^\/([^\/]+)/);
         return tenantMatch ? tenantMatch[1] : 'demo';
     }
+
+    getCurrentUser() {
+        // Get current user from session storage
+        const session = localStorage.getItem('gymflowSession') || sessionStorage.getItem('gymflowSession');
+        
+        if (!session) {
+            return null;
+        }
+
+        try {
+            const sessionData = JSON.parse(session);
+            return sessionData.user || null;
+        } catch (error) {
+            console.error('Failed to parse session data:', error);
+            return null;
+        }
+    }
+
+    extractTenantId(req) {
+        // For frontend compatibility with backend API structure
+        return this.tenantId;
+    }
     
     async apiCall(endpoint, options = {}) {
         if (!this.isOnline) {
             throw new Error('Offline - using local storage');
         }
         
-        const response = await fetch(`${this.apiBase}${endpoint}`, {
+        // Get auth token
+        const session = localStorage.getItem('gymflowSession') || sessionStorage.getItem('gymflowSession');
+        let authToken = null;
+        
+        if (session) {
+            try {
+                const sessionData = JSON.parse(session);
+                authToken = sessionData.token;
+            } catch (error) {
+                console.error('Failed to parse session:', error);
+            }
+        }
+        
+        const response = await fetch(`${this.apiBaseUrl}${endpoint}`, {
             ...options,
             headers: {
                 'Content-Type': 'application/json',
                 'X-Tenant-ID': this.tenantId,
+                ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
                 ...options.headers
             }
         });
         
         if (!response.ok) {
+            if (response.status === 401) {
+                // Token expired or invalid
+                localStorage.removeItem('gymflowSession');
+                sessionStorage.removeItem('gymflowSession');
+                window.location.href = '/auth';
+                return;
+            }
             throw new Error(`API call failed: ${response.statusText}`);
         }
         
@@ -440,12 +490,24 @@ class GymApp {
     async loadTenantData() {
         try {
             // Try to load from Azure Functions API
-            this.members = await this.tenant.apiCall('/members') || [];
-            this.plans = await this.tenant.apiCall('/plans') || this.getDefaultPlans();
-            this.trainers = await this.tenant.apiCall('/trainers') || this.getDefaultTrainers();
+            const membersResponse = await this.tenant.apiCall('/members');
+            const plansResponse = await this.tenant.apiCall('/plans');
+            const trainersResponse = await this.tenant.apiCall('/trainers');
+            
+            // Handle API response format - extract data arrays
+            this.members = Array.isArray(membersResponse) ? membersResponse : 
+                          (membersResponse?.data ? membersResponse.data : []);
+            this.plans = Array.isArray(plansResponse) ? plansResponse : 
+                        (plansResponse?.data ? plansResponse.data : this.getDefaultPlans());
+            this.trainers = Array.isArray(trainersResponse) ? trainersResponse : 
+                           (trainersResponse?.data ? trainersResponse.data : this.getDefaultTrainers());
             
             console.log(`Loaded data for tenant: ${this.tenant.tenantId}`);
+            console.log('Members:', this.members);
+            console.log('Plans:', this.plans);
+            console.log('Trainers:', this.trainers);
         } catch (error) {
+            console.error('API load failed:', error);
             // Fallback to local storage with tenant-specific keys
             this.loadFromLocalStorage();
             throw error;
@@ -1174,7 +1236,11 @@ const app = new GymApp();
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
-            .then(registration => console.log('SW registered'))
-            .catch(registrationError => console.log('SW registration failed'));
+            .then(registration => {
+                console.log('✅ Service Worker registered successfully');
+            })
+            .catch(registrationError => {
+                console.log('⚠️ Service Worker registration failed:', registrationError.message);
+            });
     });
 }

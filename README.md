@@ -1,6 +1,23 @@
-# GymFlow - Gym Management System
+# 🏋️ GymFlow - Multi-Tenant Gym Management SaaS
 
-A modern, responsive web application for managing gym operations, member subscriptions, and staff.
+A comprehensive, multi-tenant gym management SaaS platform with secure backend API integration, JWT authentication, and real-time data management.
+
+## 🚀 Architecture
+
+### Backend API Integration
+- **Express.js API Server** with Azure Functions compatibility
+- **JWT Authentication** with bcrypt password hashing
+- **Multi-tenant Data Isolation** via X-Tenant-ID headers
+- **Rate Limiting** and security middleware
+- **Local Development** with in-memory storage
+- **Production Ready** for Azure Cosmos DB deployment
+
+### Security Features
+- **Role-based Access Control** (gym-owner, super-admin)
+- **Session Management** with timeout and inactivity detection
+- **Security Event Logging** for audit trails
+- **CORS Protection** and security headers
+- **Password Strength Validation**
 
 ## Features
 
@@ -33,33 +50,86 @@ A modern, responsive web application for managing gym operations, member subscri
 ## Technology Stack
 
 - **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Charts**: Chart.js
-- **Icons**: Font Awesome
-- **Storage**: Local Storage (for demo purposes)
-- **Design**: Responsive, mobile-first approach
 
-## Getting Started
+## 🛠️ Installation & Setup
 
-1. **Clone or download** the project files
-2. **Open `index.html`** in your web browser
-3. **Start managing** your gym operations!
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn package manager
 
-### File Structure
+### Local Development Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/gymflow-saas.git
+   cd gymflow-saas
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Start the API server**
+   ```bash
+   npm run api
+   ```
+
+4. **Start the frontend server** (in a new terminal)
+   ```bash
+   npm start
+   ```
+
+5. **Access the application**
+   - Frontend: `http://localhost:3002`
+   - API: `http://localhost:3001/api`
+
+### Demo Accounts
+- **Demo User**: `demo@gymflow.com` / `demo123`
+- **Super Admin**: `admin@gymflow.com` / `admin123`
+
+### Available Tenant URLs
+- Demo Gym: `http://localhost:3002/demo`
+- Fitness Hub: `http://localhost:3002/fitnesshub`
+- PowerHouse: `http://localhost:3002/powerhouse`
+
+## 📁 Project Structure
 ```
-gym-management-app/
-├── index.html          # Main HTML file
-├── styles.css          # CSS styles and responsive design
-├── script.js           # JavaScript functionality
-└── README.md           # This file
+gymflow-saas/
+├── api/                    # Backend API
+│   ├── auth/              # Authentication endpoints
+│   ├── members/           # Member management APIs
+│   ├── plans/             # Subscription plan APIs
+│   ├── trainers/          # Trainer management APIs
+│   ├── dashboard/         # Analytics APIs
+│   └── utils/             # Database and auth utilities
+├── index.html             # Main application
+├── auth.html              # Authentication page
+├── admin.html             # Admin panel
+├── styles.css             # Main styles
+├── auth-styles.css        # Authentication styles
+├── script.js              # Main application logic
+├── auth-script.js         # Authentication logic
+├── security-monitor.js    # Security monitoring
+├── api-server.js          # Express.js API server
+├── server.js              # Frontend development server
+├── sw.js                  # Service worker for PWA
+└── package.json           # Dependencies and scripts
 ```
 
-## Usage
+## 🚀 Usage
 
-### Adding Members
-1. Click "Add Member" button
-2. Fill in member details
-3. Select subscription plan
-4. Save to add to the system
+### Authentication Flow
+1. Visit any tenant URL (e.g., `/demo`)
+2. Redirected to `/auth` if not logged in
+3. Login with demo credentials
+4. Redirected to appropriate tenant dashboard
+
+### Managing Members
+1. Navigate to Members section
+2. Click "Add Member" to create new members
+3. Use search and filters to find members
+4. Edit or delete members as needed
 
 ### Managing Subscriptions
 1. Navigate to "Subscriptions" section
