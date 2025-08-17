@@ -1,0 +1,47 @@
+[build]
+  publish = "."
+  command = "echo 'Multi-tenant gym management app ready'"
+
+# Multi-tenant routing - each gym gets its own path
+[[redirects]]
+  from = "/gym1/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gym2/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/gym3/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo/*"
+  to = "/index.html"
+  status = 200
+
+# Default redirect for root
+[[redirects]]
+  from = "/"
+  to = "/demo"
+  status = 302
+
+# Security headers
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# CORS headers for Azure Functions
+[[headers]]
+  for = "/api/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
+    Access-Control-Allow-Headers = "Content-Type, X-Tenant-ID"
