@@ -29,7 +29,7 @@ app.use(cors({
         
         const allowedOrigins = [
             'https://flexifitvault.netlify.app',
-            'https://your-custom-domain.com',
+            'https://gymflow-btfvaaeqb2dac2bw.centralindia-01.azurewebsites.net',
             'http://localhost:3002',
             'http://localhost:3000'
         ];

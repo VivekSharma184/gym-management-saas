@@ -3,7 +3,7 @@ class AuthSystem {
     constructor() {
         const API_BASE_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:3001/api' 
-            : 'https://gymflow-api-vivek.azurewebsites.net/api';
+            : 'https://gymflow-btfvaaeqb2dac2bw.centralindia-01.azurewebsites.net/api';
         this.apiBaseUrl = API_BASE_URL;
         this.users = JSON.parse(localStorage.getItem('authUsers')) || this.getDefaultUsers();
         this.currentUser = null;
