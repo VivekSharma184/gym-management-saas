@@ -1,0 +1,16 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "",
+    "FUNCTIONS_WORKER_RUNTIME": "node",
+    "NODE_ENV": "production",
+    "JWT_SECRET": "your-super-secret-jwt-key-change-in-production",
+    "JWT_EXPIRY": "24h",
+    "COSMOS_DB_ENDPOINT": "https://your-cosmosdb.documents.azure.com:443/",
+    "COSMOS_DB_KEY": "your-cosmos-db-primary-key",
+    "ALLOWED_ORIGINS": "https://your-frontend-domain.com,https://your-netlify-app.netlify.app"
+  },
+  "Host": {
+    "CORS": "*"
+  }
+}
