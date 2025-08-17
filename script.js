@@ -47,7 +47,7 @@ class TenantConfig {
         this.tenantId = this.getTenantFromURL();
         this.apiBaseUrl = window.location.hostname === 'localhost' 
             ? 'http://localhost:3001/api' 
-            : 'https://gymflow.azurewebsites.net/api';
+            : 'https://gymflow-api-vivek.azurewebsites.net/api';
         this.currentUser = this.getCurrentUser();
         
         // Only redirect to auth if we're not already on auth page and no user session

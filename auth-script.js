@@ -1,9 +1,10 @@
 // Authentication System JavaScript
 class AuthSystem {
     constructor() {
-        this.apiBaseUrl = window.location.hostname === 'localhost' 
+        const API_BASE_URL = window.location.hostname === 'localhost' 
             ? 'http://localhost:3001/api' 
-            : 'https://gymflow.azurewebsites.net/api';
+            : 'https://gymflow-api-vivek.azurewebsites.net/api';
+        this.apiBaseUrl = API_BASE_URL;
         this.users = JSON.parse(localStorage.getItem('authUsers')) || this.getDefaultUsers();
         this.currentUser = null;
         this.sessionTimeout = 24 * 60 * 60 * 1000; // 24 hours

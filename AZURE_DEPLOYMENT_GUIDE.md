@@ -39,7 +39,7 @@ JWT_SECRET = your-super-secret-jwt-key-change-this-in-production
 JWT_EXPIRY = 24h
 COSMOS_DB_ENDPOINT = https://your-cosmosdb.documents.azure.com:443/
 COSMOS_DB_KEY = your-cosmos-db-primary-key
-ALLOWED_ORIGINS = https://gymflow-saas.netlify.app,https://your-custom-domain.com
+ALLOWED_ORIGINS = https://flexifitvault.netlify.app,http://localhost:3002
 ```
 
 ### **Step 4: Deploy Your Code**

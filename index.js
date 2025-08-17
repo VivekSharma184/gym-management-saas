@@ -28,7 +28,7 @@ app.use(cors({
         if (!origin) return callback(null, true);
         
         const allowedOrigins = [
-            'https://gymflow-saas.netlify.app',
+            'https://flexifitvault.netlify.app',
             'https://your-custom-domain.com',
             'http://localhost:3002',
             'http://localhost:3000'
