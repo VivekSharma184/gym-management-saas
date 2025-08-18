@@ -31,6 +31,26 @@
 
 # Multi-tenant routing - each gym gets its own path
 [[redirects]]
+  from = "/fitnesshub/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/fitnesshub"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/powerhouse/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/powerhouse"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
   from = "/gym1/*"
   to = "/index.html"
   status = 200
@@ -47,6 +67,11 @@
 
 [[redirects]]
   from = "/demo/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/demo"
   to = "/index.html"
   status = 200
 

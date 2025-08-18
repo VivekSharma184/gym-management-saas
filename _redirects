@@ -1,0 +1,22 @@
+# Netlify redirects for GymFlow SPA routing
+# Handle tenant routes
+/demo/* /index.html 200
+/fitnesshub/* /index.html 200
+/powerhouse/* /index.html 200
+/gym1/* /index.html 200
+/gym2/* /index.html 200
+/gym3/* /index.html 200
+
+# Handle auth routes
+/auth/* /auth.html 200
+/auth /auth.html 200
+
+# Handle admin routes
+/admin/* /admin.html 200
+/admin /admin.html 200
+
+# Handle API calls - proxy to Azure Functions
+/api/* https://gymflow-btfvaaeqb2dac2bw.centralindia-01.azurewebsites.net/api/:splat 200
+
+# Default fallback for SPA
+/* /index.html 200
