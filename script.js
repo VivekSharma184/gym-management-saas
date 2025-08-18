@@ -83,14 +83,27 @@ class TenantConfig {
         const session = localStorage.getItem('gymflowSession') || sessionStorage.getItem('gymflowSession');
         
         if (!session) {
+            console.log('No session found in storage');
             return null;
         }
 
         try {
             const sessionData = JSON.parse(session);
+            
+            // Check if session is expired
+            if (sessionData.expiresAt && sessionData.expiresAt <= Date.now()) {
+                console.log('Session expired, clearing storage');
+                localStorage.removeItem('gymflowSession');
+                sessionStorage.removeItem('gymflowSession');
+                return null;
+            }
+            
+            console.log('Valid session found for user:', sessionData.user?.email);
             return sessionData.user || null;
         } catch (error) {
             console.error('Failed to parse session data:', error);
+            localStorage.removeItem('gymflowSession');
+            sessionStorage.removeItem('gymflowSession');
             return null;
         }
     }
