@@ -5,8 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get", "post", "put", "delete"],
-      "route": "{*restOfPath}"
+      "methods": ["get", "post", "put", "delete", "options"],
+      "route": "members/{id?}"
     },
     {
       "type": "http",
